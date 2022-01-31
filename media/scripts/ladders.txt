@@ -1,0 +1,56 @@
+module Ladders
+{
+	item SteelLadder
+	{
+		DisplayCategory   = Furniture,
+		Type              = Moveable,
+		Icon              = SteelLadder,
+		Weight            = 20,
+		DisplayName       = Steel Ladder,
+		WorldObjectSprite = industry_railroad_05_36,
+	}
+
+	recipe Make Steel Ladder {
+		MetalBar=6,
+		MetalPipe=4,
+		ScrapMetal=10,
+		BlowTorch=5,
+		Screws=20,
+		keep WeldingMask,
+
+		SkillRequired:MetalWelding=5,
+		Sound:BlowTorch,
+		NeedToBeLearn:false,
+		Result:SteelLadder,
+		Time:500.0,
+		Category:Welding,
+		OnGiveXP:Recipe.OnGiveXP.MetalWelding10,
+	}
+
+	item WoodenLadder
+	{
+		DisplayCategory   = Furniture,
+		Type              = Moveable,
+		Icon              = WoodenLadder,
+		Weight            = 20,
+		DisplayName       = Wooden Ladder,
+		WorldObjectSprite = industry_railroad_05_20,
+	}
+
+	recipe Make Wooden Ladder {
+		Plank=6,
+		WoodenStick=4,
+		Woodglue=5,
+		Nails=20,
+		Screws=20,
+		keep Hammer,
+
+		SkillRequired:Woodwork=3,
+		Sound:Hammering,
+		NeedToBeLearn:false,
+		Result:WoodenLadder,
+		Time:350.0,
+		Category:Carpentry,
+		OnGiveXP:Recipe.OnGiveXP.WoodWork10,
+	}
+}
