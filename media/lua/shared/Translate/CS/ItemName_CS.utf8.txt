@@ -1,0 +1,4 @@
+ItemName_CS = {
+	ItemName_Ladders.SteelLader = "Steel Ladder",
+	ItemName_Ladders.WoodenLader = "Wodden Ladder",
+}
