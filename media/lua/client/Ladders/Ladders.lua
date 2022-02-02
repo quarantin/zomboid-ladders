@@ -65,6 +65,9 @@ function Ladders.removeTopOfLadder(square)
 
 	for z = square:getZ() + 1, 8 do
 		local aboveSquare = getSquare(x, y, z)
+		if not aboveSquare then
+			return
+		end
 		local objects = aboveSquare:getObjects()
 		for i = 0, objects:size() - 1 do
 			local object = objects:get(i)
