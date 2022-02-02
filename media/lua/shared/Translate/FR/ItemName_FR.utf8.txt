@@ -1,4 +1,4 @@
 ItemName_FR = {
-	ItemName_Ladders.SteelLader = "Steel Ladder",
-	ItemName_Ladders.WoodenLader = "Wodden Ladder",
+	ItemName_Ladders.SteelLader = "Échelle en métal",
+	ItemName_Ladders.WoodenLader = "Échelle en bois",
 }
