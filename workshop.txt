@@ -20,6 +20,7 @@ description=[*] Less HP for Wooden ladders built with low carpentry skills
 description=[*] Improved animation for the climbing action
 description=[*] Climbing ladders should consume endurance
 description=[*] Can't climb ladders when running out of endurence
+description=[*] Make Fireman's poles climbable
 description=[/list]
 description=
 description=[h1]Version[/h1]
