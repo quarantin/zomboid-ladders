@@ -91,6 +91,9 @@ function Ladders.makeLadderClimbable(square, north)
 	for z = square:getZ(), 8 do
 
 		local aboveSquare = getSquare(x, y, z + 1)
+		if not aboveSquare then
+			return
+		end
 		local object = Ladders.getLadderObject(aboveSquare)
 		if not object then
 			Ladders.addTopOfLadder(aboveSquare, north)
