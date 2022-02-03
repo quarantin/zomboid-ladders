@@ -88,10 +88,10 @@ function Ladders.makeLadderClimbable(square, north)
 	local topSquare = square
 	for z = square:getZ(), 8 do
 
-		local nextSquare = getSquare(x, y, z + 1)
-		local object = Ladders.getLadderObject(nextSquare)
+		local aboveSquare = getSquare(x, y, z + 1)
+		local object = Ladders.getLadderObject(aboveSquare)
 		if not object then
-			Ladders.addTopOfLadder(nextSquare, north)
+			Ladders.addTopOfLadder(aboveSquare, north)
 			break
 		end
 	end
