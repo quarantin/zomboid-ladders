@@ -198,6 +198,7 @@ function ISMoveablesAction:perform()
 		Ladders.removeTopOfLadder(self.square)
 
 	elseif self.mode == 'place' then
+		Ladders.LoadGridsquare(self.square)
 		Ladders.makeLadderClimbableFromBottom(self.square)
 	end
 end
