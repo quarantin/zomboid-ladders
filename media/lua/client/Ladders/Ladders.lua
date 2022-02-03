@@ -16,22 +16,24 @@ function Ladders.getLadderObject(square)
 	end
 end
 
+function Ladders.setFlags(square, sprite, flag)
+	sprite:getProperties():Set(flag)
+	square:getProperties():Set(flag)
+end
+
+function Ladders.unsetFlags(square, sprite, flag)
+	sprite:getProperties():UnSet(flag)
+	square:getProperties():UnSet(flag)
+end
+
 function Ladders.setTopOfLadderFlags(square, sprite, north)
 
 	if north then
-
-		sprite:getProperties():Set(IsoFlagType.climbSheetTopN)
-		square:getProperties():Set(IsoFlagType.climbSheetTopN)
-
-		sprite:getProperties():Set(IsoFlagType.HoppableN)
-		square:getProperties():Set(IsoFlagType.HoppableN)
-
+		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopN)
+		Ladders.setFlags(square, sprite, IsoFlagType.HoppableN)
 	else
-		sprite:getProperties():Set(IsoFlagType.climbSheetTopW)
-		square:getProperties():Set(IsoFlagType.climbSheetTopW)
-
-		sprite:getProperties():Set(IsoFlagType.HoppableW)
-		square:getProperties():Set(IsoFlagType.HoppableW)
+		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopW)
+		Ladders.setFlags(square, sprite, IsoFlagType.HoppableW)
 	end
 end
 
@@ -170,8 +172,7 @@ function Ladders.LoadGridsquare(square)
 		if sprite then
 			local name = sprite:getName()
 			if Ladders.tileFlags[name] then
-				sprite:getProperties():Set(Ladders.tileFlags[name])
-				square:getProperties():Set(Ladders.tileFlags[name])
+				Ladders.setFlags(square, sprite, Ladders.tileFlags[name])
 			end
 		end
 	end
