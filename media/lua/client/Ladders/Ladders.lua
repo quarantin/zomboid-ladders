@@ -156,15 +156,19 @@ Events.OnKeyPressed.Add(Ladders.OnKeyPressed)
 --
 
 Ladders.tileFlags = {}
-
 Ladders.tileFlags.location_sewer_01_32    = IsoFlagType.climbSheetW
 Ladders.tileFlags.location_sewer_01_33    = IsoFlagType.climbSheetN
-
 Ladders.tileFlags.industry_railroad_05_20 = IsoFlagType.climbSheetW
 Ladders.tileFlags.industry_railroad_05_21 = IsoFlagType.climbSheetN
-
 Ladders.tileFlags.industry_railroad_05_36 = IsoFlagType.climbSheetW
 Ladders.tileFlags.industry_railroad_05_37 = IsoFlagType.climbSheetN
+
+Ladders.holeTiles = {}
+Ladders.holeTiles.floors_interior_carpet_01_24 = true
+
+Ladders.poleTiles = {}
+Ladders.poleTiles.recreational_sports_01_32 = true
+Ladders.poleTiles.recreational_sports_01_33 = true
 
 function Ladders.LoadGridsquare(square)
 
@@ -176,6 +180,12 @@ function Ladders.LoadGridsquare(square)
 			local name = sprite:getName()
 			if Ladders.tileFlags[name] then
 				Ladders.setFlags(square, sprite, Ladders.tileFlags[name])
+			elseif Ladders.holeTiles[name] then
+				Ladders.setFlags(square, sprite, IsoFlagType.HoppableW)
+				Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopW)
+				Ladders.unsetFlags(square, sprite, IsoFlagType.solidfloor)
+			elseif Ladders.poleTiles[name] and square:getZ() == 0 then
+				Ladders.setFlags(square, sprite, IsoFlagType.climbSheetW)
 			end
 		end
 	end
