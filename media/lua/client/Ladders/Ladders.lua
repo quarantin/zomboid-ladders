@@ -183,6 +183,7 @@ Events.LoadGridsquare.Add(Ladders.LoadGridsquare)
 -- When a player places a crafted ladder, he won't be able to climb it unless:
 -- - the ladder sprite has the proper flags set
 -- - the player moves to another chunk and comes back
+-- - the player quit and load the saved game
 -- - the same sprite was already spawned and went through the LoadGridsquare event
 --
 -- We add the missing flags here to work around the issue.
