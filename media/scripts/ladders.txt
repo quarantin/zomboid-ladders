@@ -51,6 +51,6 @@ module Ladders
 		Result:WoodenLadder,
 		Time:350.0,
 		Category:Carpentry,
-		OnGiveXP:Recipe.OnGiveXP.WoodWork10,
+		OnGiveXP:Recipe.OnGiveXP.WoodWork5,
 	}
 }
