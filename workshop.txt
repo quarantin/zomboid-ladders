@@ -7,6 +7,7 @@ description=
 description=[h1]Features[/h1]
 description=[list]
 description=[*] Climb ladders
+description=[*] Climb fire poles
 description=[*] Craft wooden and steel ladders
 description=[/list]
 description=
