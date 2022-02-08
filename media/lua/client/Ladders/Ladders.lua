@@ -39,7 +39,8 @@ end
 
 function Ladders.addTopOfLadder(square, north)
 
-	if square:getProperties():Is(IsoFlagType.WallN) or square:getProperties():Is(IsoFlagType.WallW) then
+	local props = square:getProperties()
+	if props:Is(IsoFlagType.WallN) or props:Is(IsoFlagType.WallW) or props:Is(IsoFlagType.WallNW) then
 		return
 	end
 
