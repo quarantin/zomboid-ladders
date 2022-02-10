@@ -1,4 +1,4 @@
 ItemName_PTBR = {
-	ItemName_Ladders.SteelLader = "Steel Ladder",
-	ItemName_Ladders.WoodenLader = "Wodden Ladder",
+	ItemName_Ladders.SteelLader = "Escada de Aço",
+	ItemName_Ladders.WoodenLader = "Escada de Madeira",
 }
