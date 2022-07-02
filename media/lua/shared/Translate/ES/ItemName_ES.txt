@@ -1,4 +1,4 @@
 ItemName_ES = {
-	ItemName_Ladders.SteelLader = "Escalera de acero",
-	ItemName_Ladders.WoodenLader = "Escalera de madera",
+	ItemName_Ladders.SteelLadder = "Escalera de acero",
+	ItemName_Ladders.WoodenLadder = "Escalera de madera",
 }
