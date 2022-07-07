@@ -1,4 +1,0 @@
-ItemName_JP = {
-	ItemName_Ladders.SteelLader = "鋼製はしご",
-	ItemName_Ladders.WoodenLader = "木製はしご",
-}

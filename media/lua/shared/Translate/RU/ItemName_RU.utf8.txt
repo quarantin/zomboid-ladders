@@ -1,4 +1,0 @@
-ItemName_RU = {
-	ItemName_Ladders.SteelLader = "Стальная лестница",
-	ItemName_Ladders.WoodenLader = "Деревянная лестница",
-}

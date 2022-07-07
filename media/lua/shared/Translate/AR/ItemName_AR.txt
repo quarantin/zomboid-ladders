@@ -1,4 +1,0 @@
-ItemName_AR = {
-	ItemName_Ladders.SteelLader = "Steel Ladder",
-	ItemName_Ladders.WoodenLader = "Wodden Ladder",
-}
