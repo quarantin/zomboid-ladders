@@ -1,5 +1,10 @@
 module Ladders
 {
+	imports
+	{
+		Base
+	}
+
 	item SteelLadder
 	{
 		DisplayCategory   = Furniture,
