@@ -1,4 +1,4 @@
 Recipes_ES = {
-    Recipe_Make_Steel_Ladder = "Make Steel Ladder",
-    Recipe_Make_Wooden_Ladder = "Make Wooden Ladder",
+    Recipe_Make_Steel_Ladder = "Hacer escalera de acero",
+    Recipe_Make_Wooden_Ladder = "Hacer escalera de madera",
 }
