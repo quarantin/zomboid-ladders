@@ -1,4 +1,4 @@
 Recipes_TH = {
-    Recipe_Make_Steel_Ladder = "Make Steel Ladder",
-    Recipe_Make_Wooden_Ladder = "Make Wooden Ladder",
+    Recipe_Make_Steel_Ladder = "สร้างบันไดเหล็ก",
+    Recipe_Make_Wooden_Ladder = "สร้างบันไดไม้",
 }
