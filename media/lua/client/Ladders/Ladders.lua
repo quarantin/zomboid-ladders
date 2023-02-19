@@ -141,8 +141,10 @@ function Ladders.makeLadderClimbableFromBottom(square)
 	end
 end
 
+-- The wookiee says to use getCore():getKey("Interact")
+-- because then it respects their vanilla rebindings.
 function Ladders.OnKeyPressed(key)
-	if key == Keyboard.KEY_E then
+	if key == getCore():getKey("Interact") then
 		local square = getPlayer():getSquare()
 		Ladders.makeLadderClimbableFromTop(square)
 		Ladders.makeLadderClimbableFromBottom(square)
@@ -203,6 +205,14 @@ Events.LoadGridsquare.Add(Ladders.LoadGridsquare)
 --
 -- We add the missing flags here to work around the issue.
 --
+
+-- Compatibility: Adding a backup for anyone who needs it.
+
+Ladders.ISMoveablesAction = {
+	perform = ISMoveablesAction.perform
+}
+
+local ISMoveablesAction_perform = ISMoveablesAction.perform
 
 local ISMoveablesAction_perform = ISMoveablesAction.perform
 function ISMoveablesAction:perform()
