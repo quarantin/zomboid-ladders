@@ -142,7 +142,7 @@ function Ladders.makeLadderClimbableFromBottom(square)
 end
 
 function Ladders.OnKeyPressed(key)
-    if key == Keyboard.KEY_E then
+	if key == Keyboard.KEY_E then
 		local square = getPlayer():getSquare()
 		Ladders.makeLadderClimbableFromTop(square)
 		Ladders.makeLadderClimbableFromBottom(square)
