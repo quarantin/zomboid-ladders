@@ -217,3 +217,5 @@ function ISMoveablesAction:perform()
 		Ladders.makeLadderClimbableFromBottom(self.square)
 	end
 end
+
+return Ladders
