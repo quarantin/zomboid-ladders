@@ -1,103 +1,85 @@
+--[[
+	Set sprite properties for climbing, square takes properties from objects, objects from sprites.
+	To prevent falling during climbing we make the custom sprites more persistent and able to pass their properties to the square.
+	IDs used are in the range for fileNumber 100, used by mod SpearTraps
+--]]
+
 local Ladders = {}
 
-Ladders.topOfLadder = 'TopOfLadder'
+Ladders.idW, Ladders.idN = 26476542, 26476543
+Ladders.climbSheetTopW = "TopOfLadderW"
+Ladders.climbSheetTopN = "TopOfLadderN"
 
-function Ladders.getLadderObject(square)
+function Ladders.getTopOfLadder(square, north)
 	local objects = square:getObjects()
 	for i = 0, objects:size() - 1 do
-		local object = objects:get(i)
-		local sprite = object:getSprite()
-		if sprite then
-			local prop = sprite:getProperties()
-			if prop:Is(IsoFlagType.climbSheetN) or prop:Is(IsoFlagType.climbSheetS) or prop:Is(IsoFlagType.climbSheetE) or prop:Is(IsoFlagType.climbSheetW) then
-				return object
-			end
+		local obj = objects:get(i)
+		local sprite = obj:getTextureName()
+		if north and sprite == Ladders.climbSheetTopN or not north and sprite == Ladders.climbSheetTopW then
+			return obj
 		end
 	end
 end
 
-function Ladders.setFlags(square, sprite, flag)
-	sprite:getProperties():Set(flag)
-	square:getProperties():Set(flag)
-end
-
-function Ladders.unsetFlags(square, sprite, flag)
-	sprite:getProperties():UnSet(flag)
-	square:getProperties():UnSet(flag)
-end
-
-function Ladders.setTopOfLadderFlags(square, sprite, north)
-
-	if north then
-		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopN)
-		Ladders.setFlags(square, sprite, IsoFlagType.HoppableN)
-	else
-		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopW)
-		Ladders.setFlags(square, sprite, IsoFlagType.HoppableW)
-	end
-end
-
+---returns topOfLadder object, true or nil for use with animation. obj used by _
 function Ladders.addTopOfLadder(square, north)
-
+	local hasTop
 	local props = square:getProperties()
-	if props:Is(IsoFlagType.WallN) or props:Is(IsoFlagType.WallW) or props:Is(IsoFlagType.WallNW) then
-		return
-	end
-
-	local objects = square:getObjects()
-	for i = 0, objects:size() - 1 do
-		local object = objects:get(i)
-		local name = object:getName()
-		if name == Ladders.topOfLadder then
-			Ladders.setTopOfLadderFlags(square, object:getSprite(), north)
+	if north then
+		if props:Is(IsoFlagType.climbSheetTopN) then
+			hasTop = true
+		elseif props:Is(IsoFlagType.WallN) then
+			return
+		end
+	else
+		if props:Is(IsoFlagType.climbSheetTopW) then
+			hasTop = true
+		elseif props:Is(IsoFlagType.WallW) then
 			return
 		end
 	end
+	if props:Is(IsoFlagType.WallNW) then return end
 
-	local sprite = IsoSprite.new()
-	Ladders.setTopOfLadderFlags(square, sprite, north)
-	object = IsoObject.new(getCell(), square, sprite)
-	object:setName(Ladders.topOfLadder)
-	square:transmitAddObjectToSquare(object, -1)
+	if hasTop then
+		return Ladders.getTopOfLadder(square, north)
+	else
+		local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
+		square:transmitAddObjectToSquare(object, -1)
+		return object
+	end
 end
 
 function Ladders.removeTopOfLadder(square)
-
 	local x = square:getX()
 	local y = square:getY()
-
-	for z = square:getZ() + 1, 8 do
-		local aboveSquare = getSquare(x, y, z)
-		if not aboveSquare then
+	local z = square:getZ() + 1
+	local aboveSquare = getSquare(x, y, z)
+	if not aboveSquare then
+		return
+	end
+	local objects = aboveSquare:getObjects()
+	for i = objects:size() - 1, 0, - 1  do
+		local object = objects:get(i)
+		local sprite = object:getTextureName()
+		if sprite == Ladders.climbSheetTopN or sprite == Ladders.climbSheetTopW then
+			aboveSquare:transmitRemoveItemFromSquare(object)
 			return
-		end
-		local objects = aboveSquare:getObjects()
-		for i = 0, objects:size() - 1 do
-			local object = objects:get(i)
-			local name = object:getName()
-			if name == Ladders.topOfLadder then
-				aboveSquare:transmitRemoveItemFromSquare(object)
-				return
-			end
 		end
 	end
 end
 
+---climbSheetTop_ check: stops for poles at proper square
 function Ladders.makeLadderClimbable(square, north)
 
-	local x, y = square:getX(), square:getY()
+	local x, y, z = square:getX(), square:getY(), square:getZ()
 
-	local topObject = nil
-	local topSquare = square
-	for z = square:getZ(), 8 do
-
-		local aboveSquare = getSquare(x, y, z + 1)
-		if not aboveSquare then
-			return
-		end
-		local object = Ladders.getLadderObject(aboveSquare)
-		if not object then
-			Ladders.addTopOfLadder(aboveSquare, north)
+	while true do
+		z = z + 1
+		local aboveSquare = getSquare(x, y, z)
+		if not aboveSquare or aboveSquare:TreatAsSolidFloor() then return end
+		if not aboveSquare:Is(north and IsoFlagType.climbSheetN or IsoFlagType.climbSheetW) or aboveSquare:Is(north and IsoFlagType.climbSheetTopN or IsoFlagType.climbSheetTopW) then
+			local topObject = Ladders.addTopOfLadder(aboveSquare, north)
+			Ladders.chooseAnimVar(aboveSquare,topObject)
 			break
 		end
 	end
@@ -124,20 +106,11 @@ function Ladders.makeLadderClimbableFromBottom(square)
 		return
 	end
 
-	local objects = square:getObjects()
-	for i = 0, objects:size() - 1 do
-		local object = objects:get(i)
-		local sprite = object:getSprite()
-		if sprite then
-			local prop = sprite:getProperties()
-			if prop:Is(IsoFlagType.climbSheetN) then
-				Ladders.makeLadderClimbable(square, true)
-				break
-			elseif prop:Is(IsoFlagType.climbSheetW) then
-				Ladders.makeLadderClimbable(square, false)
-				break
-			end
-		end
+	local props = square:getProperties()
+	if props:Is(IsoFlagType.climbSheetN) then
+		Ladders.makeLadderClimbable(square, true)
+	elseif props:Is(IsoFlagType.climbSheetW) then
+		Ladders.makeLadderClimbable(square, false)
 	end
 end
 
@@ -145,56 +118,20 @@ end
 -- because then it respects their vanilla rebindings.
 function Ladders.OnKeyPressed(key)
 	if key == getCore():getKey("Interact") then
-		local square = getPlayer():getSquare()
+		local player = getPlayer()
+		if not player or player:isDead() then return end
+		if MainScreen.instance:isVisible() then return end
+
+		-- Will store last player to attempt to climb a ladder.
+		Ladders.player = player
+
+		local square = player:getSquare()
 		Ladders.makeLadderClimbableFromTop(square)
 		Ladders.makeLadderClimbableFromBottom(square)
 	end
 end
 
 Events.OnKeyPressed.Add(Ladders.OnKeyPressed)
-
---
--- Some tiles for ladders are missing the proper flags to
--- make them climbable so we add the missing flags here.
---
-
-Ladders.tileFlags = {}
-Ladders.tileFlags.location_sewer_01_32    = IsoFlagType.climbSheetW
-Ladders.tileFlags.location_sewer_01_33    = IsoFlagType.climbSheetN
-Ladders.tileFlags.industry_railroad_05_20 = IsoFlagType.climbSheetW
-Ladders.tileFlags.industry_railroad_05_21 = IsoFlagType.climbSheetN
-Ladders.tileFlags.industry_railroad_05_36 = IsoFlagType.climbSheetW
-Ladders.tileFlags.industry_railroad_05_37 = IsoFlagType.climbSheetN
-
-Ladders.holeTiles = {}
-Ladders.holeTiles.floors_interior_carpet_01_24 = true
-
-Ladders.poleTiles = {}
-Ladders.poleTiles.recreational_sports_01_32 = true
-Ladders.poleTiles.recreational_sports_01_33 = true
-
-function Ladders.LoadGridsquare(square)
-
-	local objects = square:getObjects()
-	for i = 0, objects:size() - 1 do
-
-		local sprite = objects:get(i):getSprite()
-		if sprite then
-			local name = sprite:getName()
-			if Ladders.tileFlags[name] then
-				Ladders.setFlags(square, sprite, Ladders.tileFlags[name])
-			elseif Ladders.holeTiles[name] then
-				Ladders.setFlags(square, sprite, IsoFlagType.HoppableW)
-				Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopW)
-				Ladders.unsetFlags(square, sprite, IsoFlagType.solidfloor)
-			elseif Ladders.poleTiles[name] and square:getZ() == 0 then
-				Ladders.setFlags(square, sprite, IsoFlagType.climbSheetW)
-			end
-		end
-	end
-end
-
-Events.LoadGridsquare.Add(Ladders.LoadGridsquare)
 
 --
 -- When a player places a crafted ladder, he won't be able to climb it unless:
@@ -214,18 +151,136 @@ Ladders.ISMoveablesAction = {
 
 local ISMoveablesAction_perform = ISMoveablesAction.perform
 
-local ISMoveablesAction_perform = ISMoveablesAction.perform
 function ISMoveablesAction:perform()
 
 	ISMoveablesAction_perform(self)
 
 	if self.mode == 'pickup' then
 		Ladders.removeTopOfLadder(self.square)
-
-	elseif self.mode == 'place' then
-		Ladders.LoadGridsquare(self.square)
-		Ladders.makeLadderClimbableFromBottom(self.square)
 	end
 end
+
+-- Animations
+
+--
+-- Some tiles for ladders are missing the proper flags to
+-- make them climbable so we add the missing flags here.
+--
+-- We actually attempt to list all vanilla ladders in order
+-- to flag them all using mod data; this allows us to base
+-- our animation on whether the object is a ladder, rather than
+-- simply climbable.
+--
+-- I also include many ladder tiles from mods.
+--
+
+--topObject means we added custom ladder object, excluded tile list is smaller that included
+function Ladders.chooseAnimVar(square,topObject)
+	local doLadderAnim
+	if topObject then
+		doLadderAnim = true
+		local objects = square:getObjects()
+		for i = 0, objects:size() - 1 do
+			local sprite = objects:get(i):getTextureName()
+			if Ladders.excludeAnimTiles[sprite] then
+				doLadderAnim = false
+				break
+			end
+		end
+	end
+	if doLadderAnim then
+		Ladders.player:setVariable("ClimbLadder", true)
+	else
+		Ladders.player:clearVariable("ClimbLadder")
+	end
+end
+
+Ladders.westLadderTiles = {
+	"industry_02_86", "location_sewer_01_32", "industry_railroad_05_20", "industry_railroad_05_36", "walls_commercial_03_0",
+	"edit_ddd_RUS_decor_house_01_16", "edit_ddd_RUS_decor_house_01_19", "edit_ddd_RUS_industry_crane_01_72",
+	"edit_ddd_RUS_industry_crane_01_73", "rus_industry_crane_ddd_01_24", "rus_industry_crane_ddd_01_25",
+	"A1 Wall_48", "A1 Wall_80", "A1_CULT_36", "aaa_RC_6", "trelai_tiles_01_30", "trelai_tiles_01_38",
+	"industry_crane_rus_72", "industry_crane_rus_73"
+}
+
+Ladders.northLadderTiles = {
+	"location_sewer_01_33", "industry_railroad_05_21", "industry_railroad_05_37",
+	"edit_ddd_RUS_decor_house_01_17", "edit_ddd_RUS_decor_house_01_18",
+	"edit_ddd_RUS_industry_crane_01_76", "edit_ddd_RUS_industry_crane_01_77",
+	"A1 Wall_49", "A1 Wall_81", "A1_CULT_37", "aaa_RC_14", "trelai_tiles_01_31",
+	"trelai_tiles_01_39", "industry_crane_rus_76", "industry_crane_rus_77",
+}
+
+for index = 1, 62 do
+	local name = "basement_objects_02_" .. index
+	if index % 2 == 0 then
+		Ladders.westLadderTiles[#Ladders.westLadderTiles + 1] = name
+	else
+		Ladders.northLadderTiles[#Ladders.northLadderTiles + 1] = name
+	end
+end
+
+Ladders.holeTiles = {
+	"floors_interior_carpet_01_24"
+}
+
+Ladders.poleTiles = {
+	"recreational_sports_01_32", "recreational_sports_01_33"
+}
+
+--- Generate Table for faster check during anim choice
+--Ladders.ladderTiles = {}
+--
+--for each, name in ipairs(Ladders.westLadderTiles) do
+--	Ladders.ladderTiles[name] = true
+--end
+--
+--for each, name in ipairs(Ladders.northLadderTiles) do
+--	Ladders.ladderTiles[name] = true
+--end
+Ladders.excludeAnimTiles = {}
+for each, name in ipairs(Ladders.poleTiles) do
+	Ladders.excludeAnimTiles[name] = true
+end
+
+Ladders.setLadderClimbingFlags = function(manager)
+	local IsoFlagType, ipairs = IsoFlagType, ipairs
+
+	for each, name in ipairs(Ladders.westLadderTiles) do
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
+	end
+
+	for each, name in ipairs(Ladders.northLadderTiles) do
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetN)
+	end
+
+	for each, name in ipairs(Ladders.holeTiles) do
+		local properties = manager:getSprite(name):getProperties()
+		properties:Set(IsoFlagType.climbSheetTopW)
+		properties:Set(IsoFlagType.HoppableW)
+		properties:UnSet(IsoFlagType.solidfloor)
+	end
+
+	for each, name in ipairs(Ladders.poleTiles) do
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
+	end
+
+	local spriteW = manager:AddSprite(Ladders.climbSheetTopW,Ladders.idW)
+	spriteW:setName(Ladders.climbSheetTopW)
+	local propsW = spriteW:getProperties()
+	propsW:Set(IsoFlagType.climbSheetTopW)
+	propsW:Set(IsoFlagType.HoppableW)
+	propsW:CreateKeySet()
+
+	local spriteN = manager:AddSprite(Ladders.climbSheetTopN,Ladders.idN)
+	spriteN:setName(Ladders.climbSheetTopN)
+	local propsN = spriteN:getProperties()
+	propsN:Set(IsoFlagType.climbSheetTopN)
+	propsN:Set(IsoFlagType.HoppableN)
+	propsN:CreateKeySet()
+
+end
+
+Events.OnLoadedTileDefinitions.Add(Ladders.setLadderClimbingFlags)
 
 return Ladders
