@@ -55,10 +55,10 @@ function Ladders.addTopOfLadder(square, north)
 	end
 
 	local sprite = IsoSprite.new()
-	Ladders.setTopOfLadderFlags(square, sprite, north)
-	object = IsoObject.new(getCell(), square, sprite)
+	local object = IsoObject.new(getCell(), square, sprite)
 	object:setName(Ladders.topOfLadder)
 	square:transmitAddObjectToSquare(object, -1)
+	Ladders.setTopOfLadderFlags(square, sprite, north)
 end
 
 function Ladders.removeTopOfLadder(square)
@@ -143,9 +143,16 @@ end
 
 -- The wookiee says to use getCore():getKey("Interact")
 -- because then it respects their vanilla rebindings.
+local function checkIsInGame(player)
+	if not player or player:isDead() then return false end
+	if MainScreen.instance:isVisible() then return false end
+	return true
+end
 function Ladders.OnKeyPressed(key)
 	if key == getCore():getKey("Interact") then
-		local square = getPlayer():getSquare()
+		local player = getPlayer()
+		if not checkIsInGame(player) then return end
+		local square = player:getSquare()
 		Ladders.makeLadderClimbableFromTop(square)
 		Ladders.makeLadderClimbableFromBottom(square)
 	end
@@ -194,7 +201,46 @@ function Ladders.LoadGridsquare(square)
 	end
 end
 
-Events.LoadGridsquare.Add(Ladders.LoadGridsquare)
+--Events.LoadGridsquare.Add(Ladders.LoadGridsquare)
+
+Ladders.westLadderTiles = {"location_sewer_01_32","industry_railroad_05_20","industry_railroad_05_36"}
+Ladders.northLadderTiles = {"location_sewer_01_33","industry_railroad_05_21","industry_railroad_05_37"}
+Ladders.holeTiles = {"floors_interior_carpet_01_24"}
+Ladders.poleTiles = {"recreational_sports_01_32","recreational_sports_01_33"}
+
+Ladders.OnLoadedTileDefinitions = function(manager)
+	local IsoFlagType, ipairs = IsoFlagType, ipairs
+
+	for _,sprite in ipairs(Ladders.westLadderTiles) do
+		local isoSprite = manager:getSprite(sprite)
+		if isoSprite ~= nil then
+			isoSprite:getProperties():Set(IsoFlagType.climbSheetW)
+		end
+	end
+	for _,sprite in ipairs(Ladders.northLadderTiles) do
+		local isoSprite = manager:getSprite(sprite)
+		if isoSprite ~= nil then
+			isoSprite:getProperties():Set(IsoFlagType.climbSheetN)
+		end
+	end
+	for _,sprite in ipairs(Ladders.holeTiles) do
+		local isoSprite = manager:getSprite(sprite)
+		if isoSprite ~= nil then
+			local properties = isoSprite:getProperties()
+			properties:Set(IsoFlagType.climbSheetW)
+			properties:Set(IsoFlagType.HoppableW)
+			properties:UnSet(IsoFlagType.solidfloor)
+		end
+	end
+	for _,sprite in ipairs(Ladders.poleTiles) do
+		local isoSprite = manager:getSprite(sprite)
+		if isoSprite ~= nil then
+			isoSprite:getProperties():Set(IsoFlagType.climbSheetW)
+		end
+	end
+end
+Events.OnLoadedTileDefinitions.Add(Ladders.OnLoadedTileDefinitions)
+
 
 --
 -- When a player places a crafted ladder, he won't be able to climb it unless:
