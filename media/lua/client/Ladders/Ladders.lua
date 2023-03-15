@@ -227,7 +227,7 @@ Ladders.OnLoadedTileDefinitions = function(manager)
 		local isoSprite = manager:getSprite(sprite)
 		if isoSprite ~= nil then
 			local properties = isoSprite:getProperties()
-			properties:Set(IsoFlagType.climbSheetW)
+			properties:Set(IsoFlagType.climbSheetTopW)
 			properties:Set(IsoFlagType.HoppableW)
 			properties:UnSet(IsoFlagType.solidfloor)
 		end
