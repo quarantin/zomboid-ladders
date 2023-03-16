@@ -1,6 +1,8 @@
 local Ladders = {}
 
-Ladders.topOfLadder = 'TopOfLadder'
+--unused invisible sprites for better stability during climb (prev version lost the flags)
+Ladders.climbSheetTopW = "crafted_01_6"
+Ladders.climbSheetTopN = "crafted_01_7"
 
 function Ladders.getLadderObject(square)
 	local objects = square:getObjects()
@@ -34,59 +36,37 @@ function Ladders.unsetFlags(square, sprite, flag)
 	square:getProperties():UnSet(flag)
 end
 
-function Ladders.setTopOfLadderFlags(square, sprite, north)
-
-	if north then
-		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopN)
-		Ladders.setFlags(square, sprite, IsoFlagType.HoppableN)
-	else
-		Ladders.setFlags(square, sprite, IsoFlagType.climbSheetTopW)
-		Ladders.setFlags(square, sprite, IsoFlagType.HoppableW)
-	end
-end
-
 function Ladders.addTopOfLadder(square, north)
 
 	local props = square:getProperties()
-	if props:Is(IsoFlagType.WallN) or props:Is(IsoFlagType.WallW) or props:Is(IsoFlagType.WallNW) then
-		return
+	if north then
+		if props:Is(IsoFlagType.climbSheetTopN) or props:Is(IsoFlagType.WallN) then return end
+	else
+		if props:Is(IsoFlagType.climbSheetTopW) or props:Is(IsoFlagType.WallW) then return end
 	end
+	if props:Is(IsoFlagType.WallNW) then return end
 
-	local objects = square:getObjects()
-	for i = 0, objects:size() - 1 do
-		local object = objects:get(i)
-		local name = object:getName()
-		if name == Ladders.topOfLadder then
-			Ladders.setTopOfLadderFlags(square, object:getSprite(), north)
-			return
-		end
-	end
-
-	local sprite = IsoSprite.new()
-	object = IsoObject.new(getCell(), square, sprite)
-	object:setName(Ladders.topOfLadder)
+	local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
 	square:transmitAddObjectToSquare(object, -1)
-	Ladders.setTopOfLadderFlags(square, sprite, north)
+
+	return object
 end
 
 function Ladders.removeTopOfLadder(square)
-
 	local x = square:getX()
 	local y = square:getY()
-
-	for z = square:getZ() + 1, 8 do
-		local aboveSquare = getSquare(x, y, z)
-		if not aboveSquare then
+	local z = square:getZ() + 1
+	local aboveSquare = getSquare(x, y, z)
+	if not aboveSquare then
+		return
+	end
+	local objects = aboveSquare:getObjects()
+	for i = objects:size() - 1, 0, - 1  do
+		local object = objects:get(i)
+		local sprite = object:getTextureName()
+		if sprite == Ladders.climbSheetTopN or sprite == Ladders.climbSheetTopW then
+			aboveSquare:transmitRemoveItemFromSquare(object)
 			return
-		end
-		local objects = aboveSquare:getObjects()
-		for i = 0, objects:size() - 1 do
-			local object = objects:get(i)
-			local name = object:getName()
-			if name == Ladders.topOfLadder then
-				aboveSquare:transmitRemoveItemFromSquare(object)
-				return
-			end
 		end
 	end
 end
@@ -192,10 +172,8 @@ function ISMoveablesAction:perform()
 
 	if self.mode == 'pickup' then
 		Ladders.removeTopOfLadder(self.square)
-
-	elseif self.mode == 'place' then
-		Ladders.LoadGridsquare(self.square)
-		Ladders.makeLadderClimbableFromBottom(self.square)
+	--elseif self.mode == 'place' then
+	--	Ladders.makeLadderClimbableFromBottom(self.square)
 	end
 end
 
@@ -262,27 +240,32 @@ Ladders.setLadderClimbingFlags = function(manager)
 	local IsoFlagType, ipairs = IsoFlagType, ipairs
 
 	for each, name in ipairs(Ladders.westLadderTiles) do
-		local sprite = manager:getSprite(name)
-		sprite:getProperties():Set(IsoFlagType.climbSheetW)
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
 	end
 
 	for each, name in ipairs(Ladders.northLadderTiles) do
-		local sprite = manager:getSprite(name)
-		sprite:getProperties():Set(IsoFlagType.climbSheetN)
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetN)
 	end
 
 	for each, name in ipairs(Ladders.holeTiles) do
-		local sprite = manager:getSprite(name)
-		local properties = sprite:getProperties()
+		local properties = manager:getSprite(name):getProperties()
 		properties:Set(IsoFlagType.climbSheetTopW)
 		properties:Set(IsoFlagType.HoppableW)
 		properties:UnSet(IsoFlagType.solidfloor)
 	end
 
 	for each, name in ipairs(Ladders.poleTiles) do
-		local sprite = manager:getSprite(name)
-		sprite:getProperties():Set(IsoFlagType.climbSheetW)
+		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
 	end
+
+	local topW = manager:getSprite(Ladders.climbSheetTopW):getProperties()
+	topW:Set(IsoFlagType.climbSheetTopW)
+	topW:Set(IsoFlagType.HoppableW)
+
+	local topN = manager:getSprite(Ladders.climbSheetTopN):getProperties()
+	topN:Set(IsoFlagType.climbSheetTopN)
+	topN:Set(IsoFlagType.HoppableN)
+
 end
 
 Events.OnLoadedTileDefinitions.Add(Ladders.setLadderClimbingFlags)
