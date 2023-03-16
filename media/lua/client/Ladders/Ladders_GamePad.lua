@@ -14,8 +14,14 @@ Ladders.triggerGamepadClimbing = function(buttonPromptData, button, square, down
 	local playerIndex = buttonPromptData.player
 	local player = Ladders.validGamepadInput(playerIndex, button)
 	local location = player:getSquare()
+	
+	-- Used for setting animatio state.
+	Ladders.player = player 
 
 	if (MainScreen.instance and MainScreen.instance:isVisible()) or not (player and location) then return end
+
+    -- Will store last player to attempt to climb a ladder.
+    Ladders.player = player
 
 	if down then -- Am I serious? Unfortunately . . . Yes.
 
