@@ -10,11 +10,10 @@ function Ladders.getLadderObject(square)
 		if sprite then
 			local prop = sprite:getProperties()
 			local name = sprite:getName()
-			Ladders.latestSpriteName = name
 			if prop:Is(IsoFlagType.climbSheetN) or prop:Is(IsoFlagType.climbSheetS) or prop:Is(IsoFlagType.climbSheetE) or prop:Is(IsoFlagType.climbSheetW) then
             	if Ladders.player then
-					if Ladders.ladderTiles[name] then 
-						Ladders.player:setVariable("ClimbLadder", true) 
+					if Ladders.ladderTiles[name] then
+						Ladders.player:setVariable("ClimbLadder", true)
 					else
 						Ladders.player:clearVariable("ClimbLadder")
 					end
@@ -64,10 +63,10 @@ function Ladders.addTopOfLadder(square, north)
 	end
 
 	local sprite = IsoSprite.new()
-	Ladders.setTopOfLadderFlags(square, sprite, north)
 	object = IsoObject.new(getCell(), square, sprite)
 	object:setName(Ladders.topOfLadder)
 	square:transmitAddObjectToSquare(object, -1)
+	Ladders.setTopOfLadderFlags(square, sprite, north)
 end
 
 function Ladders.removeTopOfLadder(square)
@@ -155,7 +154,8 @@ end
 function Ladders.OnKeyPressed(key)
 	if key == getCore():getKey("Interact") then
         local player = getPlayer()
-        if not player then return end
+		if not player or player:isDead() then return end
+		if MainScreen.instance:isVisible() then return end
 
         -- Will store last player to attempt to climb a ladder.
         Ladders.player = player
