@@ -13,38 +13,47 @@ function Ladders.getLadderObject(square)
 			local prop = sprite:getProperties()
 			local name = sprite:getName()
 			if prop:Is(IsoFlagType.climbSheetN) or prop:Is(IsoFlagType.climbSheetS) or prop:Is(IsoFlagType.climbSheetE) or prop:Is(IsoFlagType.climbSheetW) then
-            	if Ladders.player then
-					if Ladders.ladderTiles[name] then
-						Ladders.player:setVariable("ClimbLadder", true)
-					else
-						Ladders.player:clearVariable("ClimbLadder")
-					end
-				end
+            	--if Ladders.player then
+				--	if Ladders.ladderTiles[name] then
+				--		Ladders.player:setVariable("ClimbLadder", true)
+				--	else
+				--		Ladders.player:clearVariable("ClimbLadder")
+				--	end
+				--end
 				return object
 			end
 		end
 	end
 end
 
-function Ladders.setFlags(square, sprite, flag)
-	sprite:getProperties():Set(flag)
-	square:getProperties():Set(flag)
-end
-
-function Ladders.unsetFlags(square, sprite, flag)
-	sprite:getProperties():UnSet(flag)
-	square:getProperties():UnSet(flag)
+function Ladders.getTopOfLadder(square, north)
+	local objects = square:getObjects()
+	for i = 0, objects:size() - 1 do
+		local obj = objects:get(i)
+		local sprite = obj:getTextureName()
+		if north and sprite == Ladders.climbSheetTopN or not north and sprite == Ladders.climbSheetTopW then
+			return obj
+		end
+	end
 end
 
 function Ladders.addTopOfLadder(square, north)
 
 	local props = square:getProperties()
 	if north then
-		if props:Is(IsoFlagType.climbSheetTopN) or props:Is(IsoFlagType.WallN) then return end
+		if props:Is(IsoFlagType.climbSheetTopN) then
+			return Ladders.getTopOfLadder(square, north)
+		elseif props:Is(IsoFlagType.WallN) then
+			return
+		end
 	else
-		if props:Is(IsoFlagType.climbSheetTopW) or props:Is(IsoFlagType.WallW) then return end
+		if props:Is(IsoFlagType.climbSheetTopW) then
+			return Ladders.getTopOfLadder(square, north)
+		elseif props:Is(IsoFlagType.WallW) then
+			return
+		end
 	end
-	if props:Is(IsoFlagType.WallNW) then return end
+	if props:Is(IsoFlagType.WallNW) or square:TreatAsSolidFloor() then return end
 
 	local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
 	square:transmitAddObjectToSquare(object, -1)
@@ -73,21 +82,25 @@ end
 
 function Ladders.makeLadderClimbable(square, north)
 
-	local x, y = square:getX(), square:getY()
+	local x, y, z = square:getX(), square:getY(), square:getZ()
 
-	local topObject = nil
-	local topSquare = square
-	for z = square:getZ(), 8 do
+	local topObject
+	--local topSquare = square
+	while true do
+		z = z + 1
+		local aboveSquare = getSquare(x, y, z)
+		if not aboveSquare then return end
 
-		local aboveSquare = getSquare(x, y, z + 1)
-		if not aboveSquare then
-			return
-		end
-		local object = Ladders.getLadderObject(aboveSquare)
-		if not object then
-			Ladders.addTopOfLadder(aboveSquare, north)
+		if not Ladders.getLadderObject(aboveSquare) then
+			topObject = Ladders.addTopOfLadder(aboveSquare, north)
 			break
 		end
+	end
+
+	if topObject then
+		Ladders.player:setVariable("ClimbLadder", true)
+	else
+		Ladders.player:clearVariable("ClimbLadder")
 	end
 end
 
