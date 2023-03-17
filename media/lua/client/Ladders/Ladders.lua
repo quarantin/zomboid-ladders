@@ -92,7 +92,7 @@ function Ladders.makeLadderClimbable(square, north)
 	while true do
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
-		if not aboveSquare or square:TreatAsSolidFloor() then return end
+		if not aboveSquare or aboveSquare:TreatAsSolidFloor() then return end
 
 		if not Ladders.getLadderObject(aboveSquare) then
 			topObject = Ladders.addTopOfLadder(aboveSquare, north)
