@@ -38,27 +38,30 @@ function Ladders.getTopOfLadder(square, north)
 end
 
 function Ladders.addTopOfLadder(square, north)
-
+	local hasTop
 	local props = square:getProperties()
 	if north then
 		if props:Is(IsoFlagType.climbSheetTopN) then
-			return Ladders.getTopOfLadder(square, north)
+			hasTop = true
 		elseif props:Is(IsoFlagType.WallN) then
 			return
 		end
 	else
 		if props:Is(IsoFlagType.climbSheetTopW) then
-			return Ladders.getTopOfLadder(square, north)
+			hasTop = true
 		elseif props:Is(IsoFlagType.WallW) then
 			return
 		end
 	end
-	if props:Is(IsoFlagType.WallNW) or square:TreatAsSolidFloor() then return end
+	if props:Is(IsoFlagType.WallNW) then return end
 
-	local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
-	square:transmitAddObjectToSquare(object, -1)
-
-	return object
+	if hasTop then
+		return Ladders.getTopOfLadder(square, north)
+	else
+		local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
+		square:transmitAddObjectToSquare(object, -1)
+		return object
+	end
 end
 
 function Ladders.removeTopOfLadder(square)
@@ -89,7 +92,7 @@ function Ladders.makeLadderClimbable(square, north)
 	while true do
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
-		if not aboveSquare then return end
+		if not aboveSquare or square:TreatAsSolidFloor() then return end
 
 		if not Ladders.getLadderObject(aboveSquare) then
 			topObject = Ladders.addTopOfLadder(aboveSquare, north)
