@@ -4,6 +4,7 @@ local Ladders = {}
 Ladders.climbSheetTopW = "crafted_01_6"
 Ladders.climbSheetTopN = "crafted_01_7"
 
+--used by joypad
 function Ladders.getLadderObject(square)
 	local objects = square:getObjects()
 	for i = 0, objects:size() - 1 do
@@ -83,27 +84,21 @@ function Ladders.removeTopOfLadder(square)
 	end
 end
 
+--climbSheetTopN check: stops for poles at proper square
+--if can climb and climbTop then remove topOfLadder so player can climb higher
 function Ladders.makeLadderClimbable(square, north)
 
 	local x, y, z = square:getX(), square:getY(), square:getZ()
 
-	local topObject
-	--local topSquare = square
 	while true do
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
 		if not aboveSquare or aboveSquare:TreatAsSolidFloor() then return end
-
-		if not Ladders.getLadderObject(aboveSquare) then
-			topObject = Ladders.addTopOfLadder(aboveSquare, north)
+		if not aboveSquare:Is(north and IsoFlagType.climbSheetN or IsoFlagType.climbSheetW) or aboveSquare:Is(north and IsoFlagType.climbSheetTopN or IsoFlagType.climbSheetTopW) then
+			local topObject = Ladders.addTopOfLadder(aboveSquare, north)
+			Ladders.chooseAnimVar(aboveSquare,topObject)
 			break
 		end
-	end
-
-	if topObject then
-		Ladders.player:setVariable("ClimbLadder", true)
-	else
-		Ladders.player:clearVariable("ClimbLadder")
 	end
 end
 
@@ -128,20 +123,11 @@ function Ladders.makeLadderClimbableFromBottom(square)
 		return
 	end
 
-	local objects = square:getObjects()
-	for i = 0, objects:size() - 1 do
-		local object = objects:get(i)
-		local sprite = object:getSprite()
-		if sprite then
-			local prop = sprite:getProperties()
-			if prop:Is(IsoFlagType.climbSheetN) then
-				Ladders.makeLadderClimbable(square, true)
-				break
-			elseif prop:Is(IsoFlagType.climbSheetW) then
-				Ladders.makeLadderClimbable(square, false)
-				break
-			end
-		end
+	local props = square:getProperties()
+	if props:Is(IsoFlagType.climbSheetN) then
+		Ladders.makeLadderClimbable(square, true)
+	elseif props:Is(IsoFlagType.climbSheetW) then
+		Ladders.makeLadderClimbable(square, false)
 	end
 end
 
@@ -188,8 +174,6 @@ function ISMoveablesAction:perform()
 
 	if self.mode == 'pickup' then
 		Ladders.removeTopOfLadder(self.square)
-	--elseif self.mode == 'place' then
-	--	Ladders.makeLadderClimbableFromBottom(self.square)
 	end
 end
 
@@ -207,7 +191,27 @@ end
 -- I also include many ladder tiles from mods.
 --
 
--- This new technique for loading tiles is courtesy of Poltergeist.
+
+function Ladders.chooseAnimVar(square,topObject)
+	--if square:getProperties():Is("Pole")?
+	local doLadderAnim
+	if topObject then
+		doLadderAnim = true
+		local objects = square:getObjects()
+		for i = 0, objects:size() - 1 do
+			local sprite = objects:get(i):getTextureName()
+			if Ladders.excludeAnimTiles[sprite] then
+				doLadderAnim = false
+				break
+			end
+		end
+	end
+	if doLadderAnim then
+		Ladders.player:setVariable("ClimbLadder", true)
+	else
+		Ladders.player:clearVariable("ClimbLadder")
+	end
+end
 
 Ladders.westLadderTiles = { 
 	"industry_02_86", "location_sewer_01_32", "industry_railroad_05_20", "industry_railroad_05_36", "walls_commercial_03_0",
@@ -242,16 +246,22 @@ Ladders.poleTiles = {
 	"recreational_sports_01_32", "recreational_sports_01_33" 
 }
 
-Ladders.ladderTiles = {}
-
-for each, name in ipairs(Ladders.westLadderTiles) do
-	Ladders.ladderTiles[name] = true
+--- Generate Table for faster check during anim choice
+--Ladders.ladderTiles = {}
+--
+--for each, name in ipairs(Ladders.westLadderTiles) do
+--	Ladders.ladderTiles[name] = true
+--end
+--
+--for each, name in ipairs(Ladders.northLadderTiles) do
+--	Ladders.ladderTiles[name] = true
+--end
+Ladders.excludeAnimTiles = {}
+for each, name in ipairs(Ladders.poleTiles) do
+	Ladders.excludeAnimTiles[name] = true
 end
 
-for each, name in ipairs(Ladders.northLadderTiles) do
-	Ladders.ladderTiles[name] = true
-end
-
+--Set flags to the sprites when game is loading, objects use the sprite properties and squares pull properties from their objects
 Ladders.setLadderClimbingFlags = function(manager)
 	local IsoFlagType, ipairs = IsoFlagType, ipairs
 
