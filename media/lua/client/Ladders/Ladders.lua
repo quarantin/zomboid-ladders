@@ -1,6 +1,6 @@
 local Ladders = {}
 
---unused invisible sprites for better stability during climb (prev version lost the flags)
+--unused invisible sprites for better stability during climb (prev version lost the flags, resulting in players falling)
 Ladders.climbSheetTopW = "crafted_01_6"
 Ladders.climbSheetTopN = "crafted_01_7"
 
@@ -38,6 +38,8 @@ function Ladders.getTopOfLadder(square, north)
 	end
 end
 
+--returns topOfLadder object, true or nil for use with animation, etc
+--obj used by: _
 function Ladders.addTopOfLadder(square, north)
 	local hasTop
 	local props = square:getProperties()
@@ -84,7 +86,7 @@ function Ladders.removeTopOfLadder(square)
 	end
 end
 
---climbSheetTopN check: stops for poles at proper square
+--climbSheetTop_ check: stops for poles at proper square
 --if can climb and climbTop then remove topOfLadder so player can climb higher
 function Ladders.makeLadderClimbable(square, north)
 
@@ -191,9 +193,9 @@ end
 -- I also include many ladder tiles from mods.
 --
 
-
+--topObject means we added custom ladder object, excluded tile list is smaller that included
 function Ladders.chooseAnimVar(square,topObject)
-	--if square:getProperties():Is("Pole")?
+	--if square:getProperties():Is("ClimbLadder")?
 	local doLadderAnim
 	if topObject then
 		doLadderAnim = true
