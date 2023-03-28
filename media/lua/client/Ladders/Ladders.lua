@@ -1,8 +1,14 @@
 local Ladders = {}
 
---unused invisible sprites for better stability during climb (prev version lost the flags, resulting in players falling)
-Ladders.climbSheetTopW = "crafted_01_6"
-Ladders.climbSheetTopN = "crafted_01_7"
+--[[
+	Set sprite properties for climbing, square takes properties from objects, objects from sprites.
+	To prevent falling during climbing we make the custom sprites more persistent and able to pass their properties to the square.
+	IDs used are in the range for fileNumber 100, used by mod SpearTraps
+--]]
+
+Ladders.idW, Ladders.idN = 26476542, 26476543
+Ladders.climbSheetTopW = "TopOfLadderW"
+Ladders.climbSheetTopN = "TopOfLadderN"
 
 --used by joypad
 function Ladders.getLadderObject(square)
@@ -38,8 +44,7 @@ function Ladders.getTopOfLadder(square, north)
 	end
 end
 
---returns topOfLadder object, true or nil for use with animation, etc
---obj used by: _
+--returns topOfLadder object, true or nil for use with animation. obj used by _
 function Ladders.addTopOfLadder(square, north)
 	local hasTop
 	local props = square:getProperties()
@@ -195,7 +200,6 @@ end
 
 --topObject means we added custom ladder object, excluded tile list is smaller that included
 function Ladders.chooseAnimVar(square,topObject)
-	--if square:getProperties():Is("ClimbLadder")?
 	local doLadderAnim
 	if topObject then
 		doLadderAnim = true
@@ -263,7 +267,6 @@ for each, name in ipairs(Ladders.poleTiles) do
 	Ladders.excludeAnimTiles[name] = true
 end
 
---Set flags to the sprites when game is loading, objects use the sprite properties and squares pull properties from their objects
 Ladders.setLadderClimbingFlags = function(manager)
 	local IsoFlagType, ipairs = IsoFlagType, ipairs
 
@@ -286,13 +289,19 @@ Ladders.setLadderClimbingFlags = function(manager)
 		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
 	end
 
-	local topW = manager:getSprite(Ladders.climbSheetTopW):getProperties()
-	topW:Set(IsoFlagType.climbSheetTopW)
-	topW:Set(IsoFlagType.HoppableW)
+	local spriteW = manager:AddSprite(Ladders.climbSheetTopW,Ladders.idW)
+	spriteW:setName(Ladders.climbSheetTopW)
+	local propsW = spriteW:getProperties()
+	propsW:Set(IsoFlagType.climbSheetTopW)
+	propsW:Set(IsoFlagType.HoppableW)
+	propsW:CreateKeySet()
 
-	local topN = manager:getSprite(Ladders.climbSheetTopN):getProperties()
-	topN:Set(IsoFlagType.climbSheetTopN)
-	topN:Set(IsoFlagType.HoppableN)
+	local spriteN = manager:AddSprite(Ladders.climbSheetTopN,Ladders.idN)
+	spriteN:setName(Ladders.climbSheetTopN)
+	local propsN = spriteN:getProperties()
+	propsN:Set(IsoFlagType.climbSheetTopN)
+	propsN:Set(IsoFlagType.HoppableN)
+	propsN:CreateKeySet()
 
 end
 
