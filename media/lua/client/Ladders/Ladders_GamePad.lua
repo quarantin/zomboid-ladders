@@ -95,15 +95,12 @@ GamePad.patchBestBButtonAction = function()
 			local player = getSpecificPlayer(self.player)
 			local square = player:getSquare()
 
-			--if GamePad.ladderTest then
-			--	GamePad.ladderTest = nil
-				if GamePad.testedSq[self] ~= square then
-					GamePad.testedSq[self] = square
-					Ladders.player = player
-					Ladders.makeLadderClimbableFromTop(square)
-					Ladders.makeLadderClimbableFromBottom(square)
-				end
-			--end
+			if GamePad.testedSq[self] ~= square then
+				GamePad.testedSq[self] = square
+				Ladders.player = player
+				Ladders.makeLadderClimbableFromTop(square)
+				Ladders.makeLadderClimbableFromBottom(square)
+			end
 
 			local hasClimbFlag
 			if dir == IsoDirections.W and square:getProperties():Is(IsoFlagType.climbSheetW)
