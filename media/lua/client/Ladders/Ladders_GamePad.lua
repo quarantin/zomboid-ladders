@@ -40,24 +40,36 @@ GamePad.triggerGamepadClimbing = function(buttonPromptData, button, square, down
 				player:climbThroughWindow(window, 4)
 			elseif thumpable and thumpable:canClimbThrough(player) then
 				player:climbThroughWindow(thumpable, 4)
+			else
+				player:climbDownSheetRope()
 			end
-
-			player:climbDownSheetRope()
 
 			return
 		end
-
+		
 		local hoppable = location:getHoppableThumpableTo(square)
 		local wall = location:getWallHoppableTo(square)
 
 		if hoppable or wall then
 			local direction = player:getDir()
-			if IsoWindow.canClimbThroughHelper(player, location, square, direction == IsoDirections.N or direction == IsoDirections.S) then
-				player:climbOverFence(player:getDir())
+			-- Correction to prevent errors from being thrown when player isn't facing a ladder well enough.
+			if direction == IsoDirections.NE then
+				direction = IsoDirections.E
+			elseif direction == IsoDirections.SW then
+				direction = IsoDirections.S
+			elseif direction == IsoDirections.SE then
+				local option = location:getAdjacentSquare(IsoDirections.S)
+				if option and IsoWindow.isTopOfSheetRopeHere(option) and player:canClimbDownSheetRope(option) then
+					direction = IsoDirections.S
+				else -- There must be a ladder here, or the prompt wouldn't be visible in the first place.
+					direction = IsoDirections.E
+				end
 			end
-
-			player:climbDownSheetRope()
-
+			if IsoWindow.canClimbThroughHelper(player, location, square, direction == IsoDirections.N or direction == IsoDirections.S) then
+				player:climbOverFence(direction)
+			else
+				player:climbDownSheetRope()
+			end
 			return
 		end
 
@@ -66,10 +78,9 @@ GamePad.triggerGamepadClimbing = function(buttonPromptData, button, square, down
 		if frame then
 			if (IsoWindowFrame.canClimbThrough(frame, player)) then
 				player:climbThroughWindowFrame(frame)
+			else
+				player:climbDownSheetRope()
 			end
-
-			player:climbDownSheetRope()
-
 			return
 		end
 
