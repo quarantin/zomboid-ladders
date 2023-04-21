@@ -134,7 +134,12 @@ GamePad.patchBestBButtonAction = function()
 	end
 end
 
+function GamePad.OnObjectAdded()
+	table.wipe(GamePad.testedSq)
+end
+
 Events.OnGameStart.Add(GamePad.patchBestBButtonAction)
+Events.OnObjectAdded.Add(GamePad.OnObjectAdded)
 
 -- Hide the progress bar for walking to the ladder because having one is beyond pointless.
 
