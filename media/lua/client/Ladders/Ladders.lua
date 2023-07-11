@@ -10,6 +10,7 @@ Ladders.idW, Ladders.idN = 26476542, 26476543
 Ladders.climbSheetTopW = "TopOfLadderW"
 Ladders.climbSheetTopN = "TopOfLadderN"
 
+---@return IsoObject topOfLadder
 function Ladders.getTopOfLadder(square, north)
 	local objects = square:getObjects()
 	for i = 0, objects:size() - 1 do
@@ -19,28 +20,18 @@ function Ladders.getTopOfLadder(square, north)
 			return obj
 		end
 	end
+	return nil
 end
 
----returns topOfLadder object, true or nil for use with animation. obj used by _
+---@return IsoObject topOfLadder
 function Ladders.addTopOfLadder(square, north)
-	local hasTop
 	local props = square:getProperties()
-	if north then
-		if props:Is(IsoFlagType.climbSheetTopN) then
-			hasTop = true
-		elseif props:Is(IsoFlagType.WallN) then
-			return
-		end
-	else
-		if props:Is(IsoFlagType.climbSheetTopW) then
-			hasTop = true
-		elseif props:Is(IsoFlagType.WallW) then
-			return
-		end
+	if props:Is(north and IsoFlagType.WallN or IsoFlagType.WallW) or props:Is(IsoFlagType.WallNW) then
+		Ladders.removeTopOfLadder(square)
+		return nil
 	end
-	if props:Is(IsoFlagType.WallNW) then return end
 
-	if hasTop then
+	if props:Is(north and IsoFlagType.climbSheetTopN or IsoFlagType.climbSheetTopW) then
 		return Ladders.getTopOfLadder(square, north)
 	else
 		local object = IsoObject.new(getCell(), square, north and Ladders.climbSheetTopN or Ladders.climbSheetTopW)
@@ -70,32 +61,25 @@ function Ladders.makeLadderClimbable(square, north)
 
 	while true do
 		topObject = topSquare:Is(flags.climbSheetTop) and Ladders.getTopOfLadder(topSquare,north)
-
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
 		if not aboveSquare or aboveSquare:TreatAsSolidFloor() or aboveSquare:Is("RoofGroup") then break end
 		if aboveSquare:Is(flags.climbSheet) then
 			if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
 			topSquare = aboveSquare
+		elseif not (aboveSquare:Is(flags.Wall) or aboveSquare:Is(IsoFlagType.WallNW)) then
+			if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
+			topSquare = aboveSquare
+			break
 		else
-			if aboveSquare:Is(flags.Wall) or aboveSquare:Is(IsoFlagType.WallNW) then
-				Ladders.removeTopOfLadder(aboveSquare)
-			else
-				if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
-				topSquare = aboveSquare
-			end
+			Ladders.removeTopOfLadder(aboveSquare)
 			break
 		end
 	end
 
-	if topSquare == square then return end
-	if topSquare:Is(flags.climbSheetTop) then
-		topObject = Ladders.getTopOfLadder(topSquare,north)
-	else
-		topObject = Ladders.addTopOfLadder(topSquare, north)
-	end
+	-- if topSquare == square then return end
+	topObject = Ladders.addTopOfLadder(topSquare, north)
 	Ladders.chooseAnimVar(topSquare,topObject)
-
 end
 
 function Ladders.makeLadderClimbableFromTop(square)
