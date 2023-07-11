@@ -14,8 +14,8 @@ function Ladders.getTopOfLadder(square, north)
 	local objects = square:getObjects()
 	for i = 0, objects:size() - 1 do
 		local obj = objects:get(i)
-		local sprite = obj:getTextureName()
-		if north and sprite == Ladders.climbSheetTopN or not north and sprite == Ladders.climbSheetTopW then
+		local name = obj:getTextureName()
+		if name == ( north and Ladders.climbSheetTopN or Ladders.climbSheetTopW ) then
 			return obj
 		end
 	end
@@ -50,39 +50,52 @@ function Ladders.addTopOfLadder(square, north)
 end
 
 function Ladders.removeTopOfLadder(square)
-	local x = square:getX()
-	local y = square:getY()
-	local z = square:getZ() + 1
-	local aboveSquare = getSquare(x, y, z)
-	if not aboveSquare then
-		return
-	end
-	local objects = aboveSquare:getObjects()
+	if not square then return end
+	local objects = square:getObjects()
 	for i = objects:size() - 1, 0, - 1  do
 		local object = objects:get(i)
 		local sprite = object:getTextureName()
 		if sprite == Ladders.climbSheetTopN or sprite == Ladders.climbSheetTopW then
-			aboveSquare:transmitRemoveItemFromSquare(object)
-			return
+			square:transmitRemoveItemFromSquare(object)
 		end
 	end
 end
 
----climbSheetTop_ check: stops for poles at proper square
 function Ladders.makeLadderClimbable(square, north)
-
 	local x, y, z = square:getX(), square:getY(), square:getZ()
+	local flags = north and { climbSheet = IsoFlagType.climbSheetN, climbSheetTop = IsoFlagType.climbSheetTopN, Wall = IsoFlagType.WallN }
+		or { climbSheet = IsoFlagType.climbSheetW, climbSheetTop = IsoFlagType.climbSheetTopW, Wall = IsoFlagType.WallW }
+	local topSquare = square
+	local topObject
 
 	while true do
+		topObject = topSquare:Is(flags.climbSheetTop) and Ladders.getTopOfLadder(topSquare,north)
+
 		z = z + 1
 		local aboveSquare = getSquare(x, y, z)
-		if not aboveSquare or aboveSquare:TreatAsSolidFloor() then return end
-		if not aboveSquare:Is(north and IsoFlagType.climbSheetN or IsoFlagType.climbSheetW) or aboveSquare:Is(north and IsoFlagType.climbSheetTopN or IsoFlagType.climbSheetTopW) then
-			local topObject = Ladders.addTopOfLadder(aboveSquare, north)
-			Ladders.chooseAnimVar(aboveSquare,topObject)
+		if not aboveSquare or aboveSquare:TreatAsSolidFloor() or aboveSquare:Is("RoofGroup") then break end
+		if aboveSquare:Is(flags.climbSheet) then
+			if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
+			topSquare = aboveSquare
+		else
+			if aboveSquare:Is(flags.Wall) or aboveSquare:Is(IsoFlagType.WallNW) then
+				Ladders.removeTopOfLadder(aboveSquare)
+			else
+				if topObject then topSquare:transmitRemoveItemFromSquare(topObject) end
+				topSquare = aboveSquare
+			end
 			break
 		end
 	end
+
+	if topSquare == square then return end
+	if topSquare:Is(flags.climbSheetTop) then
+		topObject = Ladders.getTopOfLadder(topSquare,north)
+	else
+		topObject = Ladders.addTopOfLadder(topSquare, north)
+	end
+	Ladders.chooseAnimVar(topSquare,topObject)
+
 end
 
 function Ladders.makeLadderClimbableFromTop(square)
@@ -102,9 +115,7 @@ end
 
 function Ladders.makeLadderClimbableFromBottom(square)
 
-	if not square then
-		return
-	end
+	if not square then return end
 
 	local props = square:getProperties()
 	if props:Is(IsoFlagType.climbSheetN) then
@@ -156,8 +167,20 @@ function ISMoveablesAction:perform()
 	ISMoveablesAction_perform(self)
 
 	if self.mode == 'pickup' then
-		Ladders.removeTopOfLadder(self.square)
+		Ladders.removeTopOfLadder(getSquare(self.square:getX(),self.square:getY(),self.square:getZ()+1))
 	end
+end
+
+require "TimedActions/ISDestroyStuffAction"
+Ladders.ISDestroyStuffAction = {
+	perform = ISDestroyStuffAction.perform,
+ }
+
+function ISDestroyStuffAction:perform()
+	if self.item:haveSheetRope() then
+		Ladders.removeTopOfLadder(self.item:getSquare())
+	end
+	return Ladders.ISDestroyStuffAction.perform(self)
 end
 
 -- Animations
