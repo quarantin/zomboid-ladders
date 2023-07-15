@@ -1,4 +1,4 @@
-version=1
+version=0.0.10
 id=2737665235
 title=Ladders!?
 description=[h1]Ladders You Said!?[/h1]
@@ -11,7 +11,7 @@ description=[*] Climb fire poles
 description=[*] Craft wooden and steel ladders
 description=[/list]
 description=
-description=[img]https://i.imgur.com/p7Fv1Z6.gif[/img]
+description=[url=https://ko-fi.com/quarantin][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url]
 description=
 description=[h1]Possible Upcoming Features[/h1]
 description=[list]
@@ -24,7 +24,7 @@ description=[*] Can't climb ladders when running out of endurence
 description=[/list]
 description=
 description=[h1]Version[/h1]
-description=Latest version:
+description=Latest version: 0.0.10
 description=
 description=[h1]Can I use this mod in a modpack?[/h1]
 description=No. Redistribution of this mod without explicit permission from the original author is strictly prohibited under any circumstances. This includes, but not limited to, uploading this mod to the Steam Workshop or any other site, distribution as part of another mod or modpack, distribution of modified versions.
@@ -40,10 +40,18 @@ description=Please submit any bug you find here:
 description=https://github.com/quarantin/zomboid-ladders/issues
 description=
 description=The following bugs are already known:
-description=- Sometimes the player falls while climbing a ladder.
+description=- [strike]Sometimes the player falls while climbing a ladder.[/strike]
 description=
 description=Feedbacks are welcome! You can find me on Project Zomboid Discord server:
 description=https://discord.com/invite/theindiestone
+description=
+description=[h1]Credits[/h1]
+description=People listed here made significant contributions:
+description=[list]
+description=[*] Gyropilot: Add climbing animation
+description=[*] [url=https://steamcommunity.com/id/zendachi/myworkshopfiles/?appid=108600]Burryaga[/url]: Add support for game controller
+description=[*] [url=https://steamcommunity.com/profiles/76561199218026428/myworkshopfiles/?appid=108600]Poltergeist[/url]: Complete rewrite
+description=[/list]
 description=
 description=[h1]Special Thanks[/h1]
 description=I'd like to say thank you to the following people for their constant help, availability, testing, or feedback:
