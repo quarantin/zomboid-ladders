@@ -48,7 +48,7 @@ module Ladders
 		Woodglue=5,
 		Nails=20,
 		Screws=20,
-		keep Hammer,
+		keep [Recipe.GetItemTypes.Hammer],
 
 		SkillRequired:Woodwork=3,
 		Sound:Hammering,
