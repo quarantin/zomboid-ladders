@@ -1,12 +1,9 @@
---[[
-	Set sprite properties for climbing, square takes properties from objects, objects from sprites.
-	To prevent falling during climbing we make the custom sprites more persistent and able to pass their properties to the square.
-	IDs used are in the range for fileNumber 100, used by mod SpearTraps
---]]
-
 local Ladders = {}
 
-Ladders.idW, Ladders.idN = 26476542, 26476543
+local instanceof = instanceof
+local climbrope_instance = ClimbSheetRopeState.instance()
+local climbdownrope_instance = ClimbDownSheetRopeState.instance()
+
 Ladders.climbSheetTopW = "TopOfLadderW"
 Ladders.climbSheetTopN = "TopOfLadderN"
 
@@ -79,7 +76,6 @@ function Ladders.makeLadderClimbable(square, north)
 
 	-- if topSquare == square then return end
 	topObject = Ladders.addTopOfLadder(topSquare, north)
-	Ladders.chooseAnimVar(topSquare,topObject)
 end
 
 function Ladders.makeLadderClimbableFromTop(square)
@@ -167,127 +163,45 @@ function ISDestroyStuffAction:perform()
 	return Ladders.ISDestroyStuffAction.perform(self)
 end
 
--- Animations
+---Changes player variables when climb starts.
+---@param character IsoGameCharacter
+---@param square IsoGridSquare | nil
+function Ladders.chooseAnimVar_climbStart(character,square)
+	if not instanceof(character,"IsoPlayer") or square == nil then return end
+	local isLadderStart
+	if square:Is(IsoFlagType.climbSheetE) then
+		-- isLadderStart = square:getProperties():Val("Climbable") == "LadderE"
+	elseif square:Is(IsoFlagType.climbSheetW) then
+		isLadderStart = square:getProperties():Val("ClimbableW") == "Ladder"
+	elseif square:Is(IsoFlagType.climbSheetS) then
+		-- isLadderStart = square:getProperties():Val("Climbable") == "LadderS"
+	elseif square:Is(IsoFlagType.climbSheetN) then
+		isLadderStart = square:getProperties():Val("ClimbableN") == "Ladder"
+	end
+	if isLadderStart then
+		character:setVariable("ClimbLadder", true)
+	else
+		character:clearVariable("ClimbLadder")
+	end
+end
 
---
--- Some tiles for ladders are missing the proper flags to
--- make them climbable so we add the missing flags here.
---
--- We actually attempt to list all vanilla ladders in order
--- to flag them all using mod data; this allows us to base
--- our animation on whether the object is a ladder, rather than
--- simply climbable.
---
--- I also include many ladder tiles from mods.
---
-
---topObject means we added custom ladder object, excluded tile list is smaller that included
-function Ladders.chooseAnimVar(square,topObject)
-	local doLadderAnim
-	if topObject then
-		doLadderAnim = true
-		local objects = square:getObjects()
-		for i = 0, objects:size() - 1 do
-			local sprite = objects:get(i):getTextureName()
-			if Ladders.excludeAnimTiles[sprite] then
-				doLadderAnim = false
-				break
-			end
+---Find when state changes to climb sheet. This is better in performance than OnPlayerUpdate unless there are a ton of zombies.
+---
+---Triggers for remote players too, removing need to transmit changes.
+---@param character IsoGameCharacter
+---@param currentState State
+---@param previousState State
+function Ladders.OnAiStateChange(character, currentState, previousState)
+	if currentState == climbrope_instance then
+		Ladders.chooseAnimVar_climbStart(character,character:getSquare())
+	elseif currentState == climbdownrope_instance then
+		local sq = character:getSquare()
+		if sq ~= nil then
+			Ladders.chooseAnimVar_climbStart(character,getSquare(sq:getX(),sq:getY(),sq:getZ()-1))
 		end
 	end
-	if doLadderAnim then
-		Ladders.player:setVariable("ClimbLadder", true)
-	else
-		Ladders.player:clearVariable("ClimbLadder")
-	end
 end
 
-Ladders.westLadderTiles = {
-	"industry_02_86", "location_sewer_01_32", "industry_railroad_05_20", "industry_railroad_05_36", "walls_commercial_03_0",
-	"edit_ddd_RUS_decor_house_01_16", "edit_ddd_RUS_decor_house_01_19", "edit_ddd_RUS_industry_crane_01_72",
-	"edit_ddd_RUS_industry_crane_01_73", "rus_industry_crane_ddd_01_24", "rus_industry_crane_ddd_01_25",
-	"A1 Wall_48", "A1 Wall_80", "A1_CULT_36", "aaa_RC_6", "trelai_tiles_01_30", "trelai_tiles_01_38",
-	"industry_crane_rus_72", "industry_crane_rus_73"
-}
-
-Ladders.northLadderTiles = {
-	"location_sewer_01_33", "industry_railroad_05_21", "industry_railroad_05_37",
-	"edit_ddd_RUS_decor_house_01_17", "edit_ddd_RUS_decor_house_01_18",
-	"edit_ddd_RUS_industry_crane_01_76", "edit_ddd_RUS_industry_crane_01_77",
-	"A1 Wall_49", "A1 Wall_81", "A1_CULT_37", "aaa_RC_14", "trelai_tiles_01_31",
-	"trelai_tiles_01_39", "industry_crane_rus_76", "industry_crane_rus_77",
-}
-
-for index = 1, 62 do
-	local name = "basement_objects_02_" .. index
-	if index % 2 == 0 then
-		Ladders.westLadderTiles[#Ladders.westLadderTiles + 1] = name
-	else
-		Ladders.northLadderTiles[#Ladders.northLadderTiles + 1] = name
-	end
-end
-
-Ladders.holeTiles = {
-	"floors_interior_carpet_01_24"
-}
-
-Ladders.poleTiles = {
-	"recreational_sports_01_32", "recreational_sports_01_33"
-}
-
---- Generate Table for faster check during anim choice
---Ladders.ladderTiles = {}
---
---for each, name in ipairs(Ladders.westLadderTiles) do
---	Ladders.ladderTiles[name] = true
---end
---
---for each, name in ipairs(Ladders.northLadderTiles) do
---	Ladders.ladderTiles[name] = true
---end
-Ladders.excludeAnimTiles = {}
-for each, name in ipairs(Ladders.poleTiles) do
-	Ladders.excludeAnimTiles[name] = true
-end
-
-Ladders.setLadderClimbingFlags = function(manager)
-	local IsoFlagType, ipairs = IsoFlagType, ipairs
-
-	for each, name in ipairs(Ladders.westLadderTiles) do
-		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
-	end
-
-	for each, name in ipairs(Ladders.northLadderTiles) do
-		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetN)
-	end
-
-	for each, name in ipairs(Ladders.holeTiles) do
-		local properties = manager:getSprite(name):getProperties()
-		properties:Set(IsoFlagType.climbSheetTopW)
-		properties:Set(IsoFlagType.HoppableW)
-		properties:UnSet(IsoFlagType.solidfloor)
-	end
-
-	for each, name in ipairs(Ladders.poleTiles) do
-		manager:getSprite(name):getProperties():Set(IsoFlagType.climbSheetW)
-	end
-
-	local spriteW = manager:AddSprite(Ladders.climbSheetTopW,Ladders.idW)
-	spriteW:setName(Ladders.climbSheetTopW)
-	local propsW = spriteW:getProperties()
-	propsW:Set(IsoFlagType.climbSheetTopW)
-	propsW:Set(IsoFlagType.HoppableW)
-	propsW:CreateKeySet()
-
-	local spriteN = manager:AddSprite(Ladders.climbSheetTopN,Ladders.idN)
-	spriteN:setName(Ladders.climbSheetTopN)
-	local propsN = spriteN:getProperties()
-	propsN:Set(IsoFlagType.climbSheetTopN)
-	propsN:Set(IsoFlagType.HoppableN)
-	propsN:CreateKeySet()
-
-end
-
-Events.OnLoadedTileDefinitions.Add(Ladders.setLadderClimbingFlags)
+Events.OnAIStateChange.Add(Ladders.OnAiStateChange)
 
 return Ladders
