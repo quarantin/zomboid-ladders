@@ -1,0 +1,4 @@
+Recipes_DE = {
+    Recipe_Make_Steel_Ladder = "Stahlleiter machen",
+    Recipe_Make_Wooden_Ladder = "Holzleiter bauen",
+}

@@ -1,0 +1,4 @@
+Recipes_JP = {
+    Recipe_Make_Steel_Ladder = "鋼製はしごを作る",
+    Recipe_Make_Wooden_Ladder = "木製はしごを作る",
+}

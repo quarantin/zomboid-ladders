@@ -1,4 +1,4 @@
 Recipes_RU = {
-    Recipe_Make_Steel_Ladder = "сделать стальную лестницу",
-    Recipe_Make_Wooden_Ladder = "сделать деревянную лестницу",
+    Recipe_Make_Steel_Ladder = "СЃРґРµР»Р°С‚СЊ СЃС‚Р°Р»СЊРЅСѓСЋ Р»РµСЃС‚РЅРёС†Сѓ",
+    Recipe_Make_Wooden_Ladder = "СЃРґРµР»Р°С‚СЊ РґРµСЂРµРІСЏРЅРЅСѓСЋ Р»РµСЃС‚РЅРёС†Сѓ",
 }

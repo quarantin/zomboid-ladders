@@ -1,0 +1,4 @@
+Recipes_KO = {
+    Recipe_Make_Steel_Ladder = "철제 사다리 만들기",
+    Recipe_Make_Wooden_Ladder = "나무 사다리 만들기",
+}
