@@ -1,0 +1,4 @@
+Recipes_PL = {
+    Recipe_Make_Steel_Ladder = "Zrób stalow¹ drabinê",
+    Recipe_Make_Wooden_Ladder = "Zrób drewnian¹ drabinê",
+}

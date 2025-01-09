@@ -1,0 +1,21 @@
+module Base
+{
+    item SteelLadder
+    {
+        Weight	=	20,
+        Type	=	Moveable,
+        DisplayName	=	Steel Ladder,
+        DisplayCategory = Furniture,
+        Icon	=	SteelLadder,
+        WorldObjectSprite = industry_railroad_05_36,
+    }
+    item WoodenLadder
+    {
+		DisplayCategory   = Furniture,
+		Type              = Moveable,
+		Icon              = WoodenLadder,
+		Weight            = 20,
+		DisplayName       = Wooden Ladder,
+		WorldObjectSprite = industry_railroad_05_20,
+     }
+}

@@ -1,0 +1,3 @@
+UI_CH = {
+    UI_Ladders_Climb = "Climb"
+}

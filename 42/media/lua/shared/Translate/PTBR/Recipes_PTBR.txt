@@ -1,0 +1,4 @@
+Recipes_PTBR = {
+    Recipe_Make_Steel_Ladder = "Fazer escada de aço",
+    Recipe_Make_Wooden_Ladder = "Fazer escada de madeira",
+}
