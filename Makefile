@@ -1,6 +1,6 @@
 MODID          := $(shell grep ^id mod.info | cut -f2 -d=)
 MODNAME        := $(shell grep ^name mod.info | cut -f2 -d=)
-VERSION        := $(shell git tag -l | tail -n 1)
+VERSION        := $(shell git describe --tags --abbrev=0)
 BUNDLE         := dist
 BUNDLEDIR      := $(BUNDLE)/$(MODID)
 STEAMBUNDLE    := ~/Zomboid/Workshop/$(MODID)
@@ -10,12 +10,12 @@ all: steambundle
 
 build:
 	transcode $(MODID) && \
-	rm -rf $(BUNDLE) && mkdir -p $(BUNDLEDIR)                    &&  \
-	cp -r mod.info media *.png LICENSE README.md $(BUNDLEDIR)    &&  \
-	find $(BUNDLE) -type f -iname '*.utf8.txt' -exec rm -f {} \; &&  \
-	sed -i                                                           \
-		-e "s/^name=$(MODNAME).*$$/name=$(MODNAME) (v$(VERSION))/" \
-		$(BUNDLEDIR)/mod.info
+	rm -rf $(BUNDLE) && mkdir -p $(BUNDLEDIR)                              &&  \
+	cp -r 42 common mod.info media *.png LICENSE README.md $(BUNDLEDIR)    &&  \
+	find $(BUNDLE) -type f -iname '*.utf8.txt' -exec rm -f {} \;           &&  \
+	sed -i                                                                     \
+		-e "s/^name=$(MODNAME).*$$/name=$(MODNAME) (v$(VERSION))/"       \
+		$(BUNDLEDIR)/mod.info $(BUNDLEDIR)/common/mod.info
 
 bundle: build
 	cd $(BUNDLE) && zip -r $(MODID)-$(VERSION).zip $(MODID)
