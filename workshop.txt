@@ -1,4 +1,4 @@
-version=0.0.10
+version=§VERSION§
 id=2737665235
 title=Ladders!?
 description=[h1]Ladders You Said!?[/h1]
@@ -24,7 +24,7 @@ description=[*] Can't climb ladders when running out of endurence
 description=[/list]
 description=
 description=[h1]Version[/h1]
-description=Latest version: 0.0.10
+description=Latest version: §VERSION§
 description=
 description=[h1]Can I use this mod in a modpack?[/h1]
 description=No. Redistribution of this mod without explicit permission from the original author is strictly prohibited under any circumstances. This includes, but not limited to, uploading this mod to the Steam Workshop or any other site, distribution as part of another mod or modpack, distribution of modified versions.
@@ -51,6 +51,7 @@ description=[list]
 description=[*] Gyropilot: Add climbing animation
 description=[*] [url=https://steamcommunity.com/id/zendachi/myworkshopfiles/?appid=108600]Burryaga[/url]: Add support for game controller
 description=[*] [url=https://steamcommunity.com/profiles/76561199218026428/myworkshopfiles/?appid=108600]Poltergeist[/url]: Complete rewrite
+descriptiopn[*] GravGunner: B42 compatibility
 description=[/list]
 description=
 description=[h1]Special Thanks[/h1]
@@ -70,5 +71,5 @@ description=[/list]
 description=Maybe I forgot to add someone to this list, just let me know if that's the case.
 description=
 description=Have fun! ;D
-tags=Build 41;Misc;Multiplayer;Realistic
+tags=Build 41;Build 42;Misc;Multiplayer;Realistic
 visibility=public
