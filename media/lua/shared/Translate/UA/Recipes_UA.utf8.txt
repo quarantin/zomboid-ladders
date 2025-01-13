@@ -1,4 +1,4 @@
 Recipes_UA = {
-    Recipe_Make_Steel_Ladder = "Make Steel Ladder",
-    Recipe_Make_Wooden_Ladder = "Make Wooden Ladder",
+    Recipe_Make_Steel_Ladder = "Зробити сталеву драбину",
+    Recipe_Make_Wooden_Ladder = "Зробити дерев'яну драбину",
 }
