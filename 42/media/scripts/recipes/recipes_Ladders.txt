@@ -7,7 +7,7 @@ module Base
 		NeedToBeLearn = False,
 		SkillRequired = MetalWelding:5,
 		Tags = InHandCraft;Welding,
-        category = Metalworking,
+		category = Metalworking,
 		xpAward = MetalWelding:25,
 		AutoLearn = MetalWelding:5,
 		inputs
@@ -26,17 +26,17 @@ module Base
 	}
 	craftRecipe MakeWoodenLadder
 	{
-        timedAction = Making,
+		timedAction = Making,
 		Time = 350,
-        tags = AnySurfaceCraft;Carpentry,
+		tags = AnySurfaceCraft;Carpentry,
 		category = Carpentry,
 		xpAward = Woodwork:5,
-        SkillRequired = Woodwork:3,
+		SkillRequired = Woodwork:3,
 		inputs
 		{
 			item 1 tags[Hammer] mode:keep flags[MayDegradeLight],
 			item 1 tags[Saw] mode:keep flags[MayDegradeLight;Prop1],
-            		item 1 tags[DrillWood;DrillMetal;DrillWoodPoor] mode:keep flags[MayDegradeLight],
+			item 1 tags[DrillWood;DrillMetal;DrillWoodPoor] mode:keep flags[MayDegradeLight],
 			item 6 [Base.Plank] flags[Prop2],
 			item 4 [Base.LongStick],
 			item 20 [Base.Nails],
@@ -47,5 +47,4 @@ module Base
 			item 1 Base.WoodenLadder,
 		}
 	}
-   
 }
