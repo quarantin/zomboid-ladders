@@ -9,7 +9,7 @@ module Base
 		Tags = InHandCraft;Welding,
 		category = Metalworking,
 		xpAward = MetalWelding:25,
-		AutoLearn = MetalWelding:5,
+		AutoLearnAny = MetalWelding:5,
 		inputs
 		{
 			item 6 [Base.IronBar],
