@@ -11,8 +11,6 @@ description=[*] Climb fire poles
 description=[*] Craft wooden and steel ladders
 description=[/list]
 description=
-description=[url=https://ko-fi.com/quarantin][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url]
-description=
 description=[h1]Possible Upcoming Features[/h1]
 description=[list]
 description=[*] Damage wooden ladders on every use
@@ -69,6 +67,11 @@ description=[*]throttlekitty
 description=[*]Xianah
 description=[/list]
 description=Maybe I forgot to add someone to this list, just let me know if that's the case.
+description=
+description=[h1]Support Me[/h1]
+description=If you like my work please consider supporting me on Ko-Fi!
+description=
+description=[url=https://ko-fi.com/quarantin][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url]
 description=
 description=Have fun! ;D
 tags=Build 41;Build 42;Misc;Multiplayer;Realistic
